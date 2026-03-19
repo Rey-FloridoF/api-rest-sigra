@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: nestjs-prisma-app
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build && npx prisma migrate deploy && npm run seed
+    startCommand: npm run start:prod
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://dbsigra_user:U4x18vtG6qUVxby6qBJyaEXKvwe7967J@dpg-d6u189vfte5s73847mkg-a/dbsigra
+      - key: JWT_SECRET
+        value: 4dm1nc3nter&s1gr4dcb4ll0s
