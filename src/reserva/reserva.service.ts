@@ -225,16 +225,21 @@ export class ReservaService {
     }
 
     const now = new Date();
+    const fechaMenu = new Date(fecha);
     const fechaStr = fecha.toISOString().split('T')[0];
-    const [year, month, day] = fechaStr.split('-');
-    const fechaMenu = new Date(Number(year), Number(month) - 1, Number(day));
-    const cutoff = new Date(fechaMenu);
-    cutoff.setDate(cutoff.getDate() - 1);
-    cutoff.setHours(18, 0, 0, 0);
+    const hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diaMenu = new Date(
+      fechaMenu.getFullYear(),
+      fechaMenu.getMonth(),
+      fechaMenu.getDate()
+    );
 
-    if (now > cutoff) {
+    const limite = new Date(diaMenu);
+    limite.setDate(limite.getDate() - 1);
+
+    if (hoy > limite) {
       throw new ForbiddenException(
-        'Ya no es posible modificar a esa fecha. El límite es antes de las 23:00 del día anterior.',
+        'Ya no es posible reservar. Solo se permite hasta el día anterior.',
       );
     }
 
@@ -317,19 +322,20 @@ export class ReservaService {
 
     const now = new Date();
     const fecha = existReserva.fechaReserva;
+    const fechaMenu = new Date(fecha);
+    const hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diaMenu = new Date(
+      fechaMenu.getFullYear(),
+      fechaMenu.getMonth(),
+      fechaMenu.getDate()
+    );
 
-    const fechaStr = fecha.toISOString().split('T')[0];
-    const [year, month, day] = fechaStr.split('-');
+    const limite = new Date(diaMenu);
+    limite.setDate(limite.getDate() - 1);
 
-    const fechaMenu = new Date(Number(year), Number(month) - 1, Number(day));
-    const cutoff = new Date(fechaMenu);
-
-    cutoff.setDate(cutoff.getDate() - 1);
-    cutoff.setHours(18, 0, 0, 0);
-
-    if (now > cutoff) {
+    if (hoy > limite) {
       throw new ForbiddenException(
-        'Ya no es posible cancelar. El límite es antes de las 23:00 del día anterior.',
+        'Ya no es posible reservar. Solo se permite hasta el día anterior.',
       );
     }
 
