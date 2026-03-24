@@ -7,6 +7,6 @@ services:
     startCommand: npx prisma migrate deploy && npm run seed && npm run start:prod
     envVars:
       - key: DATABASE_URL
-        value: postgresql://dbsigra_user:U4x18vtG6qUVxby6qBJyaEXKvwe7967J@dpg-d6u189vfte5s73847mkg-a/dbsigra
+        value: psql 'postgresql://neondb_owner:npg_AVqDh0sdC5wn@ep-dawn-forest-anmy5300-pooler.c-6.us-east-1.aws.neon.tech/sigradb?sslmode=require&channel_binding=require'
       - key: JWT_SECRET
         value: 4dm1nc3nter&s1gr4dcb4ll0s
