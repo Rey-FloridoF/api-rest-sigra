@@ -338,7 +338,7 @@ export class ReservaService {
 
     const timeZone = 'America/Havana';
     const nowCuba = toZonedTime(new Date(), timeZone);
-    const fechaMenuCuba = toZonedTime(new Date(fecha), timeZone);
+    const fechaMenuCuba = toZonedTime(new Date(`${fecha}T00:00:00`), timeZone);
     const diaMenu = new Date(
       fechaMenuCuba.getFullYear(),
       fechaMenuCuba.getMonth(),
