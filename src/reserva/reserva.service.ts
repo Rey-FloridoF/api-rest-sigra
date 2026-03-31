@@ -8,6 +8,8 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateReservaDto } from './dto/reservaCreate.dto';
 import { UpdateReservaDto } from './dto/reservaUpdate.dto';
+import { toZonedTime } from 'date-fns-tz';
+import { setHours, setMinutes, setSeconds, subDays } from 'date-fns';
 
 @Injectable()
 export class ReservaService {
@@ -115,22 +117,28 @@ export class ReservaService {
       throw new BadRequestException('Ya hiciste una reserva para esta fecha.');
     }
 
-    const now = new Date();
-    const fechaMenu = new Date(fecha);
     const fechaStr = fecha.toISOString().split('T')[0];
-    const hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const timeZone = 'America/Havana';
+    const nowCuba = toZonedTime(new Date(), timeZone);
+    const fechaMenuCuba = toZonedTime(new Date(fecha), timeZone);
     const diaMenu = new Date(
-      fechaMenu.getFullYear(),
-      fechaMenu.getMonth(),
-      fechaMenu.getDate()
+      fechaMenuCuba.getFullYear(),
+      fechaMenuCuba.getMonth(),
+      fechaMenuCuba.getDate()
+    );
+    const diaAnterior = subDays(diaMenu, 1);
+    const limite = setSeconds(
+      setMinutes(
+        setHours(diaAnterior, 23),
+        0
+      ),
+      0
     );
 
-    const limite = new Date(diaMenu);
-    limite.setDate(limite.getDate() - 1);
-
-    if (hoy > limite) {
+    if (nowCuba > limite) {
       throw new ForbiddenException(
-        'Ya no es posible reservar. Solo se permite hasta el día anterior.',
+        'Ya no es posible reservar. Solo se permite hasta las 23:00 PM del día anterior.'
       );
     }
 
@@ -224,22 +232,28 @@ export class ReservaService {
       throw new BadRequestException('Ya tienes otra reserva en esa fecha.');
     }
 
-    const now = new Date();
-    const fechaMenu = new Date(fecha);
     const fechaStr = fecha.toISOString().split('T')[0];
-    const hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const timeZone = 'America/Havana';
+    const nowCuba = toZonedTime(new Date(), timeZone);
+    const fechaMenuCuba = toZonedTime(new Date(fecha), timeZone);
     const diaMenu = new Date(
-      fechaMenu.getFullYear(),
-      fechaMenu.getMonth(),
-      fechaMenu.getDate()
+      fechaMenuCuba.getFullYear(),
+      fechaMenuCuba.getMonth(),
+      fechaMenuCuba.getDate()
+    );
+    const diaAnterior = subDays(diaMenu, 1);
+    const limite = setSeconds(
+      setMinutes(
+        setHours(diaAnterior, 23),
+        0
+      ),
+      0
     );
 
-    const limite = new Date(diaMenu);
-    limite.setDate(limite.getDate() - 1);
-
-    if (hoy > limite) {
+    if (nowCuba > limite) {
       throw new ForbiddenException(
-        'Ya no es posible reservar. Solo se permite hasta el día anterior.',
+        'Ya no es posible editar esta reserva. Solo se permite hasta las 23:00 PM del día anterior.'
       );
     }
 
@@ -320,22 +334,28 @@ export class ReservaService {
       );
     }
 
-    const now = new Date();
     const fecha = existReserva.fechaReserva;
-    const fechaMenu = new Date(fecha);
-    const hoy = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const timeZone = 'America/Havana';
+    const nowCuba = toZonedTime(new Date(), timeZone);
+    const fechaMenuCuba = toZonedTime(new Date(fecha), timeZone);
     const diaMenu = new Date(
-      fechaMenu.getFullYear(),
-      fechaMenu.getMonth(),
-      fechaMenu.getDate()
+      fechaMenuCuba.getFullYear(),
+      fechaMenuCuba.getMonth(),
+      fechaMenuCuba.getDate()
+    );
+    const diaAnterior = subDays(diaMenu, 1);
+    const limite = setSeconds(
+      setMinutes(
+        setHours(diaAnterior, 23),
+        0
+      ),
+      0
     );
 
-    const limite = new Date(diaMenu);
-    limite.setDate(limite.getDate() - 1);
-
-    if (hoy > limite) {
+    if (nowCuba > limite) {
       throw new ForbiddenException(
-        'Ya no es posible reservar. Solo se permite hasta el día anterior.',
+        'Ya no es posible cancelar la reserva. Solo se permite hasta las 23:00 PM del día anterior.'
       );
     }
 
