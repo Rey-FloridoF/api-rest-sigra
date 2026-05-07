@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class EstadisticasService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getReservasHoy() {
     const today = new Date();
@@ -25,35 +25,46 @@ export class EstadisticasService {
   }
 
   async getPlatosMasReservados() {
-    const reservaPlatos = await this.prisma.reservaPlato.groupBy({
-      by: ['menuPlatoId'],
-      _sum: {
+    const reservas = await this.prisma.reservaPlato.findMany({
+      select: {
         cantidad: true,
-      },
-      orderBy: {
-        _sum: {
-          cantidad: 'desc',
+        MenuPlato: {
+          select: {
+            Plato: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
+          },
         },
       },
     });
 
-    const top5 = reservaPlatos.slice(0, 5);
+    const acumulado = new Map<
+      number,
+      { platoId: number; nombre: string; cantidad: number }
+    >();
 
-    const resultados = await Promise.all(
-      top5.map(async (rp) => {
-        const menuPlato = await this.prisma.menuPlato.findUnique({
-          where: { id: rp.menuPlatoId },
-          include: { Plato: true },
+    for (const reserva of reservas) {
+      const plato = reserva.MenuPlato?.Plato;
+
+      if (!plato) continue;
+
+      if (acumulado.has(plato.id)) {
+        acumulado.get(plato.id)!.cantidad += reserva.cantidad;
+      } else {
+        acumulado.set(plato.id, {
+          platoId: plato.id,
+          nombre: plato.nombre,
+          cantidad: reserva.cantidad,
         });
-        return {
-          platoId: rp.menuPlatoId,
-          nombre: menuPlato?.Plato?.nombre || 'Plato no encontrado',
-          cantidad: rp._sum.cantidad || 0,
-        };
-      }),
-    );
+      }
+    }
 
-    return resultados;
+    return Array.from(acumulado.values())
+      .sort((a, b) => b.cantidad - a.cantidad)
+      .slice(0, 5);
   }
 
   async getTotalUsuarios() {
@@ -325,7 +336,7 @@ export class EstadisticasService {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth();
-    
+
     const startOfMonth = new Date(year, month, 1, 12, 0, 0);
     const endOfMonth = new Date(year, month + 1, 1, 12, 0, 0);
 

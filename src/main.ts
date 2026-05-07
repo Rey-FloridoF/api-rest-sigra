@@ -15,7 +15,8 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'https://fe-sigra.vercel.app'
+      'https://fe-sigra.vercel.app',
+      'http://localhost:3000'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
