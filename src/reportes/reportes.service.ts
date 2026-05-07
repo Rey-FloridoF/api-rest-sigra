@@ -99,7 +99,10 @@ export class ReportesService {
       registros,
     };
 
-    const docDefinition = billreport(resultadoConsulta);
+    const hoy = new Date();
+    const fecha = hoy.toISOString().split('T')[0];
+
+    const docDefinition = billreport(resultadoConsulta, fecha);
 
     const pdf = await this.printer.createPdf(docDefinition);
 

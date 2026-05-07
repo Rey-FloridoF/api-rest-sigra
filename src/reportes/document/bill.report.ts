@@ -2,7 +2,7 @@ import { TDocumentDefinitions } from "pdfmake/interfaces";
 import * as fs from "fs";
 import * as path from "path";
 
-export const billreport = (resultadoConsulta: any): TDocumentDefinitions => {
+export const billreport = (resultadoConsulta: any, fecha: string): TDocumentDefinitions => {
 
     const { fechaInicio, fechaFin, registros } = resultadoConsulta;
 
@@ -122,9 +122,9 @@ export const billreport = (resultadoConsulta: any): TDocumentDefinitions => {
 
             { text: '\n\n\n' },
 
-            // 🔹 Firma
             {
-                text: '______________\nResponsable'
+                text: `______________\nResponsable\n Fecha del reporte${fecha}`,
+                margin: [0, 20, 0, 0]
             }
 
         ]

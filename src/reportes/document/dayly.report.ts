@@ -78,7 +78,7 @@ export const daylyReport = (resultado: any): TDocumentDefinitions => {
     }
 
     return {
-        pageSize: 'A4', 
+        pageSize: 'A4',
         pageOrientation: 'landscape',
         content: [
 
@@ -129,6 +129,13 @@ export const daylyReport = (resultado: any): TDocumentDefinitions => {
                     body: bodyTable
                 },
                 layout: 'lightHorizontalLines'
+            },
+
+            { text: '\n\n\n' },
+
+            // 🔹 Firma
+            {
+                text: '______________\nResponsable'
             }
 
         ]
