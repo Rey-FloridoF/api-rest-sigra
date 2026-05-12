@@ -276,41 +276,65 @@ export class EstadisticasService {
   async getPlatoMasReservadoUsuario(userToken: any) {
     const userId = userToken.user_id;
 
-    const reservaPlatos = await this.prisma.reservaPlato.groupBy({
-      by: ['menuPlatoId'],
-      _sum: {
-        cantidad: true,
-      },
+    // 1. Agrupar por platoId (vía MenuPlato)
+    const reservasAgrupadas = await this.prisma.reservaPlato.findMany({
       where: {
         Reserva: {
           userId,
         },
       },
-      orderBy: {
-        _sum: {
-          cantidad: 'desc',
+      select: {
+        cantidad: true,
+        MenuPlato: {
+          select: {
+            platoId: true,
+            Plato: {
+              select: {
+                id: true,
+                nombre: true,
+              },
+            },
+          },
         },
       },
-      take: 1,
     });
 
-    if (reservaPlatos.length === 0) {
+    if (reservasAgrupadas.length === 0) {
       return {
         existe: false,
         mensaje: 'No tienes reservas realizadas',
       };
     }
 
-    const menuPlato = await this.prisma.menuPlato.findUnique({
-      where: { id: reservaPlatos[0].menuPlatoId },
-      include: { Plato: true },
-    });
+    // 2. Agrupar manualmente por platoId (evitamos duplicados de menú)
+    const mapa = new Map<number, { platoId: number; nombre: string; cantidad: number }>();
+
+    for (const r of reservasAgrupadas) {
+      const platoId = r.MenuPlato.platoId;
+      const nombre = r.MenuPlato.Plato.nombre;
+      const cantidad = r.cantidad;
+
+      if (!mapa.has(platoId)) {
+        mapa.set(platoId, {
+          platoId,
+          nombre,
+          cantidad,
+        });
+      } else {
+        mapa.get(platoId)!.cantidad += cantidad;
+      }
+    }
+
+    // 3. Obtener el más reservado
+    const topPlato = [...mapa.values()].sort(
+      (a, b) => b.cantidad - a.cantidad,
+    )[0];
 
     return {
       existe: true,
-      platoId: reservaPlatos[0].menuPlatoId,
-      nombre: menuPlato?.Plato?.nombre || 'Plato no encontrado',
-      cantidad: reservaPlatos[0]._sum.cantidad || 0,
+      platoId: topPlato.platoId,
+      nombre: topPlato.nombre,
+      cantidad: topPlato.cantidad,
     };
   }
 
