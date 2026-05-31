@@ -22,6 +22,7 @@ model Usuario {
   apellidoMat    String?
   username       String       @unique
   password       String
+  activo         Boolean      @default(true)
   role           String
 
   Departamento   Departamento @relation(fields: [departamentoId], references: [id], onDelete: Cascade)

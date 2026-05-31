@@ -12,11 +12,12 @@ import { ChangePasswordDto } from './dto/changePassword.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   findAll() {
     return this.prisma.usuario
       .findMany({
+        where:{activo: true},
         select: {
           id: true,
           nombre: true,
@@ -149,7 +150,6 @@ export class UsersService {
     if (dto.apellidoMat) data.apellidoMat = dto.apellidoMat;
     if (dto.username) data.username = dto.username;
 
-    // ✅ Cambio importante: ahora usamos departamentoId
     if (dto.departamentoId) {
       const departamento = await this.prisma.departamento.findUnique({
         where: { id: dto.departamentoId },
@@ -194,9 +194,12 @@ export class UsersService {
     });
 
     if (reservaExist) {
-      throw new ConflictException(
-        'No se puede eliminar este usuario porque posee reservas',
-      );
+      await this.prisma.usuario.update({
+        where: { id },
+        data: { activo: false },
+      });
+
+      return { message: 'El usuario ha sido desactivado, porque posee reservas realizadas' }
     }
 
     await this.prisma.usuario.delete({ where: { id } });

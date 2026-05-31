@@ -22,6 +22,10 @@ export class AuthService {
       throw new UnauthorizedException('Usuario no existente');
     }
 
+    if(!usuarioExist.activo){
+      throw new UnauthorizedException('El usuario no está activo');
+    }
+
     const passwordMatch = await compare(password, usuarioExist.password);
     if (!passwordMatch) {
       throw new UnauthorizedException('Usuario o contraseña incorrectos');

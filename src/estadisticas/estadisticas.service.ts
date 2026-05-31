@@ -68,7 +68,7 @@ export class EstadisticasService {
   }
 
   async getTotalUsuarios() {
-    const count = await this.prisma.usuario.count();
+    const count = await this.prisma.usuario.count({where: {role: "USUARIO", activo: true} });
     return { cantidad: count };
   }
 
