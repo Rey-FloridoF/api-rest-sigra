@@ -9,6 +9,7 @@ import {
   Patch,
   UseGuards,
   Header,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/createUser.dto';
@@ -16,6 +17,7 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { Request } from 'express';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -58,7 +60,8 @@ export class UsersController {
 
   @Delete('destroy/:id')
   @UseGuards(AdminGuard)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.remove(id);
+  remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const user_token= req.user
+    return this.usersService.remove(id, user_token);
   }
 }

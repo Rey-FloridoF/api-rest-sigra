@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,7 +18,7 @@ export class UsersService {
   findAll() {
     return this.prisma.usuario
       .findMany({
-        where:{activo: true},
+        where: { activo: true },
         select: {
           id: true,
           nombre: true,
@@ -186,8 +187,16 @@ export class UsersService {
     return { message: 'Cambio de contraseña satisfactorio' };
   }
 
-  async remove(id: number): Promise<{ message: string }> {
+  async remove(id: number, user_token): Promise<{ message: string }> {
     await this.findOne(id);
+
+    const userId = user_token.user_id
+
+    if (id === userId) {
+      throw new ForbiddenException(
+        'No puedes eliminar tu propio usuario.'
+      );
+    }
 
     const reservaExist = await this.prisma.reserva.findFirst({
       where: { userId: id },

@@ -11,7 +11,7 @@ import { Menu } from '@prisma/client';
 
 @Injectable()
 export class MenuService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getAllMenu() {
     return this.prisma.menu.findMany({
@@ -81,6 +81,15 @@ export class MenuService {
   async createMenu(dto: CreateMenuDto): Promise<{ message: string }> {
     const { fecha, menuPlatos } = dto;
 
+    const hoyISO = new Date().toISOString().split('T')[0];
+    const fechaISO = new Date(fecha).toISOString().split('T')[0];
+
+    if (fechaISO <= hoyISO) {
+      throw new BadRequestException(
+        'No se puede crear un menú para este mismo día o para una fecha pasada'
+      );
+    }
+
     const existing = await this.prisma.menu.findUnique({
       where: { fecha },
     });
@@ -136,6 +145,15 @@ export class MenuService {
     dto: UpdateMenuDto,
   ): Promise<{ message: string }> {
     const { fecha, menuPlatos } = dto;
+
+    const hoyISO = new Date().toISOString().split('T')[0];
+    const fechaISO = new Date(fecha).toISOString().split('T')[0];
+
+    if (fechaISO <= hoyISO) {
+      throw new BadRequestException(
+        'No se puede crear un menú para este mismo día o para una fecha pasada'
+      );
+    }
 
     // 1️⃣ Verificar que el menú exista
     const existing = await this.prisma.menu.findUnique({
